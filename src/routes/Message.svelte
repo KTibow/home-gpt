@@ -9,14 +9,16 @@
   </button>
   {#if expanded}
     <div class="px-4 flex gap-2">
-      <div class="whitespace-pre-wrap p-2 bg-slate-800 rounded-xl">
+      <div class="whitespace-pre-wrap p-2 bg-slate-800 rounded-xl grow flex flex-col">
         <p class="text-teal-500">AI:</p>
-        <span class="whitespace-pre-wrap">{message.fromAI}</span>
+        <p class="whitespace-pre-wrap">{message.fromAI}</p>
       </div>
-      <div class="whitespace-pre-wrap p-2 bg-amber-900 rounded-xl">
-        <p class="text-amber-500">System:</p>
-        <span class="whitespace-pre-wrap">{message.fromSystem}</span>
-      </div>
+      {#if message.fromSystem}
+        <div class="whitespace-pre-wrap p-2 bg-amber-900 rounded-xl grow flex flex-col">
+          <p class="text-amber-500">System:</p>
+          <p class="whitespace-pre-wrap">{message.fromSystem}</p>
+        </div>
+      {/if}
     </div>
   {/if}
 {:else}

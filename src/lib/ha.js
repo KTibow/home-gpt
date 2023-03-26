@@ -36,22 +36,6 @@ export const listAreas = async () => {
   });
   return (cache.areas = await resp.text());
 };
-export const listEntities = async (options) => {
-  const resp = await fetchData("/api/template", {
-    method: "POST",
-    body: JSON.stringify({
-      template: options.area
-        ? `{% for entity_id in area_entities("${options.area}") -%}
-{% set entity = states[entity_id] -%}
-{{ entity.name }}: {{ entity_id }}, {{ entity.state }}
-{% endfor %}`
-        : `{% for entity in states.${options.domain} -%}
-{{ entity.name }}: {{ entity.entity_id }}, {{ entity.state }}
-{% endfor %}`,
-    }),
-  });
-  return await resp.text();
-};
 export const listServices = async () => {
   let text = "";
   for (const domain of await cachedServices()) {
@@ -62,15 +46,6 @@ ${services.join("\n")}
 `;
   }
   return text;
-};
-export const getState = async (entityId) => {
-  const resp = await fetchData("/api/template", {
-    method: "POST",
-    body: JSON.stringify({
-      template: `{{ states.${entityId} }}`,
-    }),
-  });
-  return await resp.text();
 };
 export const getService = async (serviceName) => {
   const [domainChunk, serviceChunk] = serviceName.split(".");
@@ -109,36 +84,12 @@ export const callService = async (serviceName, data) => {
     body: JSON.stringify(data),
   });
 };
-/*
-export const getService = async (serviceName) => {
-  const serviceParts = serviceName.split(".");
-  if (serviceParts.length != 2) return;
-  const domains = await cachedServices();
-
-  const domain = domains.find((d) => d.domain == serviceParts[0]);
-  if (!domain) return;
-  const serviceData = Object.entries(domain.services).find((s) => s[0] == serviceParts[1]);
-  if (!serviceData) return;
-
-  const service = serviceData[1];
-  let text = service.name;
-  if (service.description) text += ` | ${service.description.trim()}`;
-  text += `
-Target: ${JSON.stringify(service.target)}
-Fields:
-`;
-  for (const [fieldId, field] of Object.entries(service.fields)) {
-    if (field.advanced) continue;
-    text += `${fieldId} (${field.name}), ${Object.keys(field.selector).join(", ")}
-`;
-  }
-  return text;
+export const runTemplate = async (template) => {
+  const resp = await fetchData("/api/template", {
+    method: "POST",
+    body: JSON.stringify({
+      template,
+    }),
+  });
+  return await resp.text();
 };
-
-export const callService = async (serviceName, data) => {
-  const serviceParts = serviceName.split(".");
-  if (serviceParts.length != 2) return;
-
-  return await postHA(`/api/services/${serviceParts[0]}/${serviceParts[1]}`, data);
-};
-*/
